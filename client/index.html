@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- Google Fonts Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- SEO -->
+    <title>Accounts Master — Daily Accounting & Cash Reconciliation</title>
+    <meta name="description" content="Professional daily accounting and cash reconciliation platform. Track sales, expenses, GPay, credit, and reconcile cash with denomination counting." />
+    <meta name="keywords" content="accounting, cash reconciliation, daily accounts, expense tracker, GPay, business" />
+    <meta name="author" content="Accounts Master" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Accounts Master" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/jpeg" href="/icon-512.jpg" />
+    <link rel="apple-touch-icon" href="/icon-512.jpg" />
+    <link rel="shortcut icon" href="/icon-512.jpg" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Accounts Master" />
+    <meta property="og:description" content="Professional daily accounting & cash reconciliation platform" />
+    <meta property="og:image" content="/icon-512.jpg" />
+    <meta property="og:type" content="website" />
+
+    <!-- Safe Area for notched phones -->
+    <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+        --sar: env(safe-area-inset-right);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[SW] Registered:', reg.scope))
+            .catch(err => console.warn('[SW] Failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
