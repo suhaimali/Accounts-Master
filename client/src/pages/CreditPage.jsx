@@ -224,7 +224,7 @@ export default function CreditPage() {
           <div className="form-group">
             <label className="form-label">Payment Mode</label>
             <select className="form-select" value={form.paymentMode} onChange={e => setForm(p => ({ ...p, paymentMode: e.target.value }))}>
-              {['cash', 'gpay', 'card', 'bank', 'other'].map(m => <option key={m}>{m}</option>)}
+              {['cash', 'gpay', 'card', 'bank', 'other'].map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div className="form-group">

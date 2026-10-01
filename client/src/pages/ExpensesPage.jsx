@@ -709,7 +709,7 @@ export default function ExpensesPage() {
               onChange={(e) => setForm((p) => ({ ...p, paymentMode: e.target.value }))}
             >
               {['cash', 'gpay', 'card', 'bank', 'other'].map((m) => (
-                <option key={m}>{m.toUpperCase()}</option>
+                <option key={m} value={m}>{m.toUpperCase()}</option>
               ))}
             </select>
           </div>
