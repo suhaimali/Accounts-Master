@@ -93,11 +93,11 @@ export default function DashboardPage() {
   }, [data?.last7Days]);
 
   // Financial Metrics
-  const todaySales = today?.totalSales || 22654;
-  const todayCashSales = today?.cashSales || 11714;
-  const todayExpenses = today?.totalExpenses || 3039;
-  const todayExpectedCash = today?.expectedCash || 18675;
-  const todayPhysicalCash = today?.physicalCash || 18600;
+  const todaySales = today?.totalSales || 0;
+  const todayCashSales = today?.cashSales || 0;
+  const todayExpenses = today?.totalExpenses || 0;
+  const todayExpectedCash = today?.expectedCash || 0;
+  const todayPhysicalCash = today?.physicalCash || 0;
   const todayDifference = today ? today.difference : 0;
   const reconciliationStatus = today?.status || (todayDifference === 0 ? 'BALANCED' : todayDifference < 0 ? 'SHORT' : 'EXCESS');
 
@@ -106,8 +106,8 @@ export default function DashboardPage() {
 
   const channels = [
     { name: 'Cash Sales', value: todayCashSales, color: '#2563eb' },
-    { name: 'GPAY / UPI', value: gpayVal > 0 ? gpayVal : 7900, color: '#3b82f6' },
-    { name: 'Customer Credit', value: creditVal > 0 ? creditVal : 3040, color: '#f59e0b' },
+    { name: 'GPAY / UPI', value: gpayVal > 0 ? gpayVal : 0, color: '#3b82f6' },
+    { name: 'Customer Credit', value: creditVal > 0 ? creditVal : 0, color: '#f59e0b' },
   ];
   const totalChannels = channels.reduce((acc, c) => acc + c.value, 0) || 1;
 
@@ -277,7 +277,7 @@ export default function DashboardPage() {
             {formatCurrency(todayExpenses)}
           </div>
           <div className="metric-box-footer">
-            <span>Month: {formatCurrency(month?.totalExpenses || 31195)}</span>
+            <span>Month: {formatCurrency(month?.totalExpenses || 0)}</span>
             <span>{todaySales > 0 ? `${((todayExpenses / todaySales) * 100).toFixed(1)}%` : '0%'} of sales</span>
           </div>
         </div>
@@ -290,9 +290,9 @@ export default function DashboardPage() {
               <CreditCard size={16} />
             </div>
           </div>
-          <div className="metric-box-value">{formatCurrency(pending?.total || 28710)}</div>
+          <div className="metric-box-value">{formatCurrency(pending?.total || 0)}</div>
           <div className="metric-box-footer">
-            <span>{pending?.count || 14} open debtors</span>
+            <span>{pending?.count || 0} open debtors</span>
             <span
               onClick={() => navigate('/credit')}
               style={{ color: '#2563eb', cursor: 'pointer', fontWeight: 600 }}

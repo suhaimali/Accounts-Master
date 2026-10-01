@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Accounts Master - Daily Accounting & Cash Reconciliation Platform",
   "scripts": {
+    "start": "node server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon --quiet --no-warnings server/index.js",
     "client": "cd client && npm run dev",
