@@ -238,6 +238,13 @@ export default function ReportsPage() {
 
               <div className="card">
                 <div className="card-header"><div className="card-title">Daily Data Breakdown</div></div>
+                {data.data?.length === 0 ? (
+                  <div className="empty-state" style={{ minHeight: 250 }}>
+                    <div className="empty-state-icon"><BarChart3 size={40} strokeWidth={1.2} /></div>
+                    <h3>No daily records found</h3>
+                    <p>Adjust your date filters to see more data.</p>
+                  </div>
+                ) : (
                 <div className="table-container">
                   <table>
                     <thead>
@@ -299,6 +306,7 @@ export default function ReportsPage() {
                     </tbody>
                   </table>
                 </div>
+                )}
               </div>
             </>
           )}
@@ -340,6 +348,13 @@ export default function ReportsPage() {
 
               <div className="card">
                 <div className="card-header"><div className="card-title">Expense Transactions</div></div>
+                {data.data?.length === 0 ? (
+                  <div className="empty-state" style={{ minHeight: 250 }}>
+                    <div className="empty-state-icon"><FileText size={40} strokeWidth={1.2} /></div>
+                    <h3>No expenses found</h3>
+                    <p>Adjust your date filters to see more data.</p>
+                  </div>
+                ) : (
                 <div className="table-container">
                   <table>
                     <thead>
@@ -385,6 +400,7 @@ export default function ReportsPage() {
                     </tbody>
                   </table>
                 </div>
+                )}
               </div>
             </>
           )}
@@ -413,6 +429,13 @@ export default function ReportsPage() {
 
               <div className="card">
                 <div className="card-header"><div className="card-title">Reconciliation Logs</div></div>
+                {data.data?.length === 0 ? (
+                  <div className="empty-state" style={{ minHeight: 250 }}>
+                    <div className="empty-state-icon"><PieChart size={40} strokeWidth={1.2} /></div>
+                    <h3>No reconciliation logs found</h3>
+                    <p>Adjust your date filters to see more data.</p>
+                  </div>
+                ) : (
                 <div className="table-container">
                   <table>
                     <thead>
@@ -470,6 +493,7 @@ export default function ReportsPage() {
                     </tbody>
                   </table>
                 </div>
+                )}
               </div>
             </>
           )}
@@ -504,6 +528,13 @@ export default function ReportsPage() {
 
               <div className="card">
                 <div className="card-header"><div className="card-title">Customer Balances</div></div>
+                {data.data?.length === 0 ? (
+                  <div className="empty-state" style={{ minHeight: 250 }}>
+                    <div className="empty-state-icon"><CreditCard size={40} strokeWidth={1.2} /></div>
+                    <h3>No customer balances found</h3>
+                    <p>There are no outstanding credit entries.</p>
+                  </div>
+                ) : (
                 <div className="table-container">
                   <table>
                     <thead>
@@ -555,6 +586,7 @@ export default function ReportsPage() {
                     </tbody>
                   </table>
                 </div>
+                )}
               </div>
             </>
           )}

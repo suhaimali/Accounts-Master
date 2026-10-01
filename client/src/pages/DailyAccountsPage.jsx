@@ -303,7 +303,7 @@ function ReconciliationPanel({ account }) {
           borderRadius: 'var(--radius-md)',
           padding: '12px 14px',
           border: '1px solid var(--border)',
-          marginTop: 'auto',
+          marginTop: 14,
         }}
       >
         <div className="summary-row" style={{ padding: '4px 0' }}>
@@ -513,23 +513,19 @@ export default function DailyAccountsPage() {
       </div>
 
       {!account ? (
-        <div className="card" style={{ textAlign: 'center', padding: '48px 20px' }}>
-          <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
-            <Calendar size={48} color="var(--text-muted)" />
+        <div className="card">
+          <div className="empty-state" style={{ minHeight: 400 }}>
+            <div className="empty-state-icon"><Calendar size={40} strokeWidth={1.2} /></div>
+            <h3>No Account Found for {formatDate(selectedDate, 'DD/MM/YYYY')}</h3>
+            <p>No accounting register entry exists for this selected date.</p>
+            <button
+              className="btn btn-primary"
+              style={{ marginTop: 16 }}
+              onClick={() => setSelectedDate(todayString())}
+            >
+              Go to Today's Register
+            </button>
           </div>
-          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
-            No Account Found for {formatDate(selectedDate, 'DD/MM/YYYY')}
-          </h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: 13.5 }}>
-            No accounting register entry exists for this selected date.
-          </p>
-          <button
-            className="btn btn-primary"
-            style={{ marginTop: 16 }}
-            onClick={() => setSelectedDate(todayString())}
-          >
-            Go to Today's Register
-          </button>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

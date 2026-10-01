@@ -409,8 +409,12 @@ export default function DashboardPage() {
             <tbody>
               {filteredLedger.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
-                    No daily records found.
+                  <td colSpan={7} style={{ padding: 0 }}>
+                    <div className="empty-state" style={{ minHeight: 250, border: 'none' }}>
+                      <div className="empty-state-icon"><BookOpen size={40} strokeWidth={1.2} /></div>
+                      <h3>No daily records found</h3>
+                      <p>Start by creating a new daily account.</p>
+                    </div>
                   </td>
                 </tr>
               ) : (

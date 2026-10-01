@@ -498,32 +498,20 @@ export default function ExpensesPage() {
             <div className="loading-spinner" />
           </div>
         ) : expenses.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
-            <div style={{ marginBottom: 10 }}>
-              <Receipt size={40} strokeWidth={1.2} />
-            </div>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-              No Expenses Found
-            </h3>
-            <p style={{ fontSize: 13 }}>
+          <div className="empty-state" style={{ minHeight: 300 }}>
+            <div className="empty-state-icon"><Receipt size={40} strokeWidth={1.2} /></div>
+            <h3>No Expenses Found</h3>
+            <p>
               {hasActiveFilters
                 ? 'No expense vouchers match your active filters.'
                 : 'No business expenses have been recorded yet.'}
             </p>
             {hasActiveFilters ? (
-              <button
-                className="btn btn-secondary btn-sm"
-                style={{ marginTop: 12 }}
-                onClick={clearFilters}
-              >
+              <button className="btn btn-secondary btn-sm" style={{ marginTop: 12 }} onClick={clearFilters}>
                 Clear All Filters
               </button>
             ) : (
-              <button
-                className="btn btn-primary btn-sm"
-                style={{ marginTop: 12 }}
-                onClick={() => openForm()}
-              >
+              <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} onClick={() => openForm()}>
                 <Plus size={14} /> Record First Expense
               </button>
             )}
