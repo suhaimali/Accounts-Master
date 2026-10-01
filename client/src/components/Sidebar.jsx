@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import {
   LayoutDashboard, BookOpen, Calculator, CreditCard, TrendingDown,
   Smartphone, PiggyBank, DollarSign, ArrowRight, BarChart3, History,
-  Settings, Users, Shield, LogOut, X
+  LogOut, X
 } from 'lucide-react';
 
 const NAV = [
@@ -21,9 +21,6 @@ const NAV = [
   null, // divider
   { id: 'reports',         label: 'Reports',         icon: BarChart3,       path: '/reports' },
   { id: 'history',         label: 'History',         icon: History,         path: '/history' },
-  { id: 'settings',        label: 'Settings',        icon: Settings,        path: '/settings', roles: ['admin', 'manager'] },
-  { id: 'users',           label: 'Users',           icon: Users,           path: '/users',    roles: ['admin'] },
-  { id: 'audit-logs',      label: 'Security Logs',   icon: Shield,          path: '/audit-logs', roles: ['admin', 'manager'] },
 ];
 
 export default function Sidebar({ mobileOpen, setMobileOpen }) {
@@ -57,7 +54,6 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
         <nav className="sb-nav">
           {NAV.map((item, i) => {
             if (item === null) return <div key={`div-${i}`} className="sb-divider" />;
-            if (item.roles && !item.roles.includes(user?.role)) return null;
             const Icon = item.icon;
             return (
               <button
@@ -80,7 +76,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
           <div className="sb-avatar">{user?.name?.[0]?.toUpperCase() || 'A'}</div>
           <div className="sb-user-info">
             <div className="sb-user-name">{user?.name || 'Admin'}</div>
-            <div className="sb-user-role">{user?.role || 'admin'}</div>
+            <div className="sb-user-role">Administrator</div>
           </div>
           <button className="sb-logout" onClick={handleLogout} title="Logout" id="sidebar-logout-btn">
             <LogOut size={15} />

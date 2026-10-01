@@ -12,7 +12,7 @@ import Modal, { ConfirmModal } from '../components/Modal';
 import {
   Save, Lock, Unlock, RefreshCw,
   Calculator, CheckCircle, AlertTriangle, AlertCircle, Clock,
-  ArrowRight
+  ArrowRight, Calendar
 } from 'lucide-react';
 
 function SalesForm({ account, onUpdate, disabled }) {
@@ -514,7 +514,9 @@ export default function DailyAccountsPage() {
 
       {!account ? (
         <div className="card" style={{ textAlign: 'center', padding: '48px 20px' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📅</div>
+          <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+            <Calendar size={48} color="var(--text-muted)" />
+          </div>
           <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
             No Account Found for {formatDate(selectedDate, 'DD/MM/YYYY')}
           </h3>

@@ -20,8 +20,6 @@ const PAGE_TITLES = {
   '/carry-forward': 'Carry Forward',
   '/reports': 'Reports & P&L',
   '/history': 'Audit History',
-  '/settings': 'Settings',
-  '/users': 'User Management',
   '/audit-logs': 'Security Logs',
 };
 
@@ -121,16 +119,6 @@ export default function Topbar({
                 <div className="dropdown-user-name">{user?.name || 'Admin User'}</div>
                 <div className="dropdown-user-email">{user?.email || 'admin@accountsmaster.com'}</div>
               </div>
-              <div className="topbar-dropdown-divider" />
-              <button
-                className="topbar-dropdown-item"
-                onClick={() => {
-                  setUserDropdownOpen(false);
-                  navigate('/settings');
-                }}
-              >
-                Settings
-              </button>
               <div className="topbar-dropdown-divider" />
               <button
                 className="topbar-dropdown-item danger"

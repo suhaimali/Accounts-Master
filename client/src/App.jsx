@@ -18,9 +18,6 @@ import PCPage from './pages/PCPage';
 import OpeningBalancePage from './pages/OpeningBalancePage';
 import ReportsPage from './pages/ReportsPage';
 import HistoryPage from './pages/HistoryPage';
-import SettingsPage from './pages/SettingsPage';
-import UsersPage from './pages/UsersPage';
-import AuditLogsPage from './pages/AuditLogsPage';
 
 function App() {
   return (
@@ -57,10 +54,9 @@ function App() {
               <Route path="opening-balance" element={<OpeningBalancePage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="history" element={<HistoryPage />} />
-              <Route path="settings" element={<ProtectedRoute roles={['admin', 'manager']}><SettingsPage /></ProtectedRoute>} />
-              <Route path="users" element={<ProtectedRoute roles={['admin']}><UsersPage /></ProtectedRoute>} />
-              <Route path="audit-logs" element={<ProtectedRoute roles={['admin', 'manager']}><AuditLogsPage /></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </SettingsProvider>
       </AuthProvider>

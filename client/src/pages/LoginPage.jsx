@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@accountsmaster.com');
-  const [password, setPassword] = useState('admin123');
+  const [password, setPassword] = useState('12345678');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -125,7 +125,7 @@ export default function LoginPage() {
           <div style={{ marginTop: 24, padding: '14px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>Default credentials</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>Email: <strong>admin@accountsmaster.com</strong></div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>Password: <strong>admin123</strong></div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Password: <strong>12345678</strong></div>
           </div>
         </div>
       </div>
