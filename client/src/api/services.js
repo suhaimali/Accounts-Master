@@ -86,9 +86,3 @@ export const auditLogsAPI = {
   getAll: (params) => api.get('/audit-logs', { params }),
 };
 
-export const backupsAPI = {
-  getAll: () => api.get('/backups'),
-  create: () => api.post('/backups'),
-  delete: (filename) => api.delete(`/backups/${filename}`),
-  download: (filename) => `${api.defaults.baseURL}/backups/${filename}/download` // URL for window.open
-};

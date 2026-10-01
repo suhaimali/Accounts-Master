@@ -34,7 +34,7 @@ app.use('/api/carry-forward', require('./routes/carryForward'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/audit-logs', require('./routes/auditLogs'));
 app.use('/api/dashboard', require('./routes/dashboard'));
-app.use('/api/backups', require('./routes/backups'));
+
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK', timestamp: new Date() }));

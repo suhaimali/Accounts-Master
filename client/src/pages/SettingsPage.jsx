@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
-import { Save, Plus, Trash2, Database, Download, Settings, Building2, Calculator } from 'lucide-react';
-import { backupsAPI } from '../api/services';
+import { Save, Plus, Trash2, Settings, Building2, Calculator } from 'lucide-react';
 
 export default function SettingsPage() {
   const { settings, bulkUpdate } = useSettings();
@@ -12,51 +11,6 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
   const [newCategory, setNewCategory] = useState('');
-  const [backups, setBackups] = useState([]);
-  const [loadingBackups, setLoadingBackups] = useState(false);
-  const [creatingBackup, setCreatingBackup] = useState(false);
-
-  useEffect(() => {
-    if (activeTab === 'backups') {
-      loadBackups();
-    }
-  }, [activeTab]);
-
-  const loadBackups = async () => {
-    try {
-      setLoadingBackups(true);
-      const res = await backupsAPI.getAll();
-      setBackups(res.data);
-    } catch (err) {
-      toast.error('Failed to load backups');
-    } finally {
-      setLoadingBackups(false);
-    }
-  };
-
-  const handleCreateBackup = async () => {
-    try {
-      setCreatingBackup(true);
-      const res = await backupsAPI.create();
-      toast.success(res.message);
-      loadBackups();
-    } catch (err) {
-      toast.error('Failed to create backup');
-    } finally {
-      setCreatingBackup(false);
-    }
-  };
-
-  const handleDeleteBackup = async (filename) => {
-    if (!window.confirm('Delete this backup?')) return;
-    try {
-      await backupsAPI.delete(filename);
-      toast.success('Backup deleted');
-      loadBackups();
-    } catch (err) {
-      toast.error('Failed to delete backup');
-    }
-  };
 
   useEffect(() => {
     setForm({
@@ -98,8 +52,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'general', label: 'General', icon: Building2, color: '#3b82f6' },
-    { id: 'accounting', label: 'Accounting', icon: Calculator, color: '#10b981' },
-    { id: 'backups', label: 'Backups', icon: Database, color: '#f59e0b' }
+    { id: 'accounting', label: 'Accounting', icon: Calculator, color: '#10b981' }
   ];
 
   return (
@@ -364,84 +317,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {activeTab === 'backups' && (
-        <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 40, height: 40, background: '#fef3c7', color: '#d97706', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Database size={20} /></div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>System Backups</h3>
-                <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--text-sub)' }}>Manage and create database backups</p>
-              </div>
-            </div>
-            {can(['admin']) && (
-              <button 
-                className="btn btn-primary" 
-                onClick={handleCreateBackup} 
-                disabled={creatingBackup}
-                style={{ borderRadius: 10, fontWeight: 600, padding: '10px 20px' }}
-              >
-                <Database size={16} style={{ marginRight: 8 }} />
-                {creatingBackup ? 'Creating...' : 'Create Backup'}
-              </button>
-            )}
-          </div>
-          
-          <div className="table-container" style={{ borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            <table className="simple-table" style={{ margin: 0 }}>
-              <thead>
-                <tr>
-                  <th>Filename</th>
-                  <th>Date Created</th>
-                  <th>Size</th>
-                  <th style={{ width: 100, textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loadingBackups ? (
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>Loading backups...</td>
-                  </tr>
-                ) : backups.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', padding: 20, color: 'var(--text-muted)' }}>
-                      No backups found.
-                    </td>
-                  </tr>
-                ) : (
-                  backups.map(backup => (
-                    <tr key={backup.filename}>
-                      <td style={{ fontWeight: 600, color: '#0f172a' }}>{backup.filename}</td>
-                      <td>{new Date(backup.createdAt).toLocaleString()}</td>
-                      <td>{(backup.size / 1024).toFixed(2)} KB</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                          <button
-                            onClick={() => window.open(backupsAPI.download(backup.filename), '_blank')}
-                            title="Download Backup"
-                            style={{ background: '#eff6ff', border: 'none', width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#3b82f6', transition: '0.2s' }}
-                          >
-                            <Download size={14} />
-                          </button>
-                          {can(['admin']) && (
-                            <button
-                              onClick={() => handleDeleteBackup(backup.filename)}
-                              title="Delete Backup"
-                              style={{ background: '#fef2f2', border: 'none', width: 28, height: 28, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ef4444', transition: '0.2s' }}
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
