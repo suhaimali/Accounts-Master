@@ -78,11 +78,14 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {/* Email */}
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>Email Address</label>
+              <label htmlFor="email" style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>Email Address</label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><Mail size={18} /></div>
                 <input
+                  id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="name@company.com"
@@ -95,11 +98,14 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>Password</label>
+              <label htmlFor="password" style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>Password</label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><Lock size={18} /></div>
                 <input
+                  id="password"
+                  name="password"
                   type={showPass ? 'text' : 'password'}
+                  autoComplete="current-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
