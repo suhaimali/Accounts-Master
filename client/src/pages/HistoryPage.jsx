@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { dailyAccountsAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Search, ClipboardList, CalendarDays, Filter, X } from 'lucide-react';
+import { Search, ClipboardList, Filter } from 'lucide-react';
 import { formatDate, todayString, monthStart } from '../utils/accountingEngine';
 
 export default function HistoryPage() {

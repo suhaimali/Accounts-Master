@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Menu, PanelLeft, Calendar, Plus,
-  ChevronDown, User, LogOut, CheckCircle2
+  Menu, Calendar, Plus,
+  ChevronDown, LogOut
 } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import { formatDate, todayString } from '../utils/accountingEngine';
 
 const PAGE_TITLES = {
@@ -28,8 +28,6 @@ const PAGE_TITLES = {
 export default function Topbar({
   mobileOpen,
   setMobileOpen,
-  collapsed,
-  setCollapsed
 }) {
   const { settings } = useSettings();
   const { user, logout } = useAuth();
@@ -70,17 +68,6 @@ export default function Topbar({
           aria-label="Open navigation menu"
         >
           <Menu size={19} />
-        </button>
-
-        {/* Desktop Sidebar Toggle */}
-        <button
-          className="topbar-icon-btn hidden-mobile"
-          onClick={() => setCollapsed(!collapsed)}
-          aria-label="Toggle sidebar"
-          title="Toggle sidebar"
-          style={{ marginRight: 4 }}
-        >
-          <PanelLeft size={19} />
         </button>
 
         {/* Clean Page Title */}

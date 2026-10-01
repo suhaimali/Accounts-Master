@@ -86,3 +86,7 @@ export const auditLogsAPI = {
   getAll: (params) => api.get('/audit-logs', { params }),
 };
 
+export const openingBalanceAPI = {
+  getByDate: (date, branch) => api.get(`/opening-balance/${date}`, { params: { branch } }),
+  getHistory: (params) => api.get('/opening-balance', { params }),
+};

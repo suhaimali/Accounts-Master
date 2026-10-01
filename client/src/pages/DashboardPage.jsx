@@ -4,16 +4,16 @@ import toast from 'react-hot-toast';
 import {
   TrendingUp, TrendingDown, Wallet, CreditCard,
   AlertTriangle, CheckCircle2, ArrowRight,
-  BookOpen, Calculator, Plus, ArrowUpRight,
-  RefreshCw, Search, FileSpreadsheet, Smile
+  BookOpen, Calculator, Plus,
+  RefreshCw, Search
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer
 } from 'recharts';
 import { dashboardAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import { formatDate, todayString } from '../utils/accountingEngine';
 
 /* Simple Clean Status Badge */
@@ -132,42 +132,46 @@ export default function DashboardPage() {
 
   return (
     <div className="simple-dash-container animate-fade-in">
-      {/* 1. Simple Clean Header */}
-      <div className="dash-header" style={{ alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            Welcome back, {user?.name || 'Admin'} <Smile size={20} color="#eab308" />
-          </h2>
-          <p style={{ fontSize: '14px', color: '#64748b', margin: '4px 0 0 0' }}>
-            Here is your financial overview for today.
-          </p>
+      {/* 1. Welcome Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 12, marginBottom: 20,
+        background: '#fff', border: '1px solid #f1f5f9',
+        borderRadius: 12, padding: '14px 20px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+      }}>
+        {/* Left: greeting */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: '50%',
+            background: '#2563eb', color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 800, fontSize: 16, flexShrink: 0,
+          }}>
+            {user?.name?.[0]?.toUpperCase() || 'A'}
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
+              Welcome back, {user?.name || 'Admin'}
+            </div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+          </div>
         </div>
 
-        <div className="dash-actions">
-          <button
-            className="btn btn-secondary btn-sm btn-icon"
-            onClick={loadDashboard}
-            disabled={refreshing}
-            title="Refresh"
-          >
+        {/* Right: quick actions */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button className="btn btn-secondary btn-sm btn-icon" onClick={loadDashboard} disabled={refreshing} title="Refresh">
             <RefreshCw size={14} className={refreshing ? 'spinning' : ''} />
           </button>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => navigate('/cash-counter')}
-          >
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate('/cash-counter')}>
             <Calculator size={14} /> Count Cash
           </button>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => navigate('/expenses')}
-          >
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate('/expenses')}>
             <Plus size={14} /> Add Expense
           </button>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate('/daily-accounts')}
-          >
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/daily-accounts')}>
             <BookOpen size={14} /> Daily Accounts
           </button>
         </div>

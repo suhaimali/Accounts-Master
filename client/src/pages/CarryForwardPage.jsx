@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { carryForwardAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
 import { Save, Edit2, X, ArrowRightLeft, Trash2 } from 'lucide-react';
 import { formatDate, todayString } from '../utils/accountingEngine';

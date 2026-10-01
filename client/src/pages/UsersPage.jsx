@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usersAPI } from '../api/services';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Modal, { ConfirmModal } from '../components/Modal';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, Shield, Users } from 'lucide-react';

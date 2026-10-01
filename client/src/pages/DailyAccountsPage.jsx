@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dailyAccountsAPI, expensesAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import {
   calculateTotalSales, calculateDifference,
   getReconciliationStatus, todayString, formatDate
@@ -10,9 +10,9 @@ import {
 import toast from 'react-hot-toast';
 import Modal, { ConfirmModal } from '../components/Modal';
 import {
-  Save, Lock, Unlock, Plus, Trash2, Edit2, RefreshCw,
+  Save, Lock, Unlock, RefreshCw,
   Calculator, CheckCircle, AlertTriangle, AlertCircle, Clock,
-  ArrowRight, DollarSign, Wallet, TrendingDown, TrendingUp
+  ArrowRight
 } from 'lucide-react';
 
 function SalesForm({ account, onUpdate, disabled }) {
@@ -57,22 +57,18 @@ function SalesForm({ account, onUpdate, disabled }) {
     <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="card-header" style={{ marginBottom: 14 }}>
         <div>
-          <div className="card-title">Sales Breakdown & Entry</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="card-title">Sales Breakdown &amp; Entry</div>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: 999 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite' }} />
+              LIVE DB
+            </span>
+          </div>
           <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>
             Register sales channels for {formatDate(account?.dateString, 'DD/MM/YYYY')}
           </div>
         </div>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            background: '#eff6ff',
-            color: '#2563eb',
-            border: '1px solid #bfdbfe',
-            padding: '3px 10px',
-            borderRadius: 9999,
-          }}
-        >
+        <span style={{ fontSize: 12, fontWeight: 700, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '3px 10px', borderRadius: 9999 }}>
           Total: {formatCurrency(totalSales)}
         </span>
       </div>
@@ -120,8 +116,8 @@ function SalesForm({ account, onUpdate, disabled }) {
           </div>
         </div>
 
-        <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 6 }}>
-          <label className="form-label">Notes & Remarks</label>
+        <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
+          <label className="form-label">Notes &amp; Remarks</label>
           <textarea
             className="form-textarea"
             placeholder="Optional daily notes, register remarks..."
@@ -134,63 +130,27 @@ function SalesForm({ account, onUpdate, disabled }) {
         </div>
       </div>
 
-      {/* Modern Channel Summary Table */}
-      <div
-        style={{
-          background: 'var(--bg-primary)',
-          borderRadius: 'var(--radius-md)',
-          padding: '12px 14px',
-          border: '1px solid var(--border)',
-          marginTop: 'auto',
-        }}
-      >
-        <div className="summary-row" style={{ padding: '4px 0' }}>
-          <span className="summary-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
-            Cash Sales (Drawer)
-          </span>
-          <span className="summary-value text-success" style={{ fontWeight: 600 }}>
-            {formatCurrency(form.cashSales || 0)}
-          </span>
-        </div>
-
-        <div className="summary-row" style={{ padding: '4px 0' }}>
-          <span className="summary-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
-            Credit Sales (Customers)
-          </span>
-          <span className="summary-value" style={{ fontWeight: 600 }}>
-            {formatCurrency(account?.creditSales || 0)}
-          </span>
-        </div>
-
-        <div className="summary-row" style={{ padding: '4px 0' }}>
-          <span className="summary-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8b5cf6' }} />
-            GPAY / UPI Sales
-          </span>
-          <span className="summary-value" style={{ fontWeight: 600 }}>
-            {formatCurrency(account?.gpaySales || 0)}
-          </span>
-        </div>
-
-        <div className="summary-row" style={{ padding: '4px 0' }}>
-          <span className="summary-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#64748b' }} />
-            Petty Cash (PC) Sales
-          </span>
-          <span className="summary-value" style={{ fontWeight: 600 }}>
-            {formatCurrency(form.pcSales || 0)}
-          </span>
-        </div>
-
-        <div className="summary-row total divider" style={{ marginTop: 6, paddingTop: 8 }}>
-          <span className="summary-label" style={{ fontWeight: 700 }}>
-            Total Daily Revenue
-          </span>
-          <span className="summary-value" style={{ fontSize: 16, fontWeight: 800, color: 'var(--brand-primary)' }}>
-            {formatCurrency(totalSales)}
-          </span>
+      {/* Live DB Channel Summary */}
+      <div style={{ background: '#f8fafc', borderRadius: 10, padding: '12px 14px', border: '1px solid #e2e8f0', marginTop: 12 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Live Channel Totals (from DB)</div>
+        {[
+          { label: 'Cash Sales', value: form.cashSales || 0, color: '#10b981', live: false },
+          { label: 'Credit Sales (DB)', value: account?.creditSales || 0, color: '#f59e0b', live: true },
+          { label: 'GPAY / UPI (DB)', value: account?.gpaySales || 0, color: '#8b5cf6', live: true },
+          { label: 'Petty Cash Sales', value: form.pcSales || 0, color: '#64748b', live: false },
+        ].map(row => (
+          <div key={row.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: '#475569' }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: row.color, flexShrink: 0 }} />
+              {row.label}
+              {row.live && <span style={{ fontSize: 9, fontWeight: 700, color: '#15803d', background: '#dcfce7', padding: '1px 5px', borderRadius: 999 }}>LIVE</span>}
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{formatCurrency(row.value)}</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0 0', marginTop: 4 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>Total Revenue</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#2563eb' }}>{formatCurrency(totalSales)}</span>
         </div>
       </div>
 

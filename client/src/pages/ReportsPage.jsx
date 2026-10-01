@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsAPI, dailyAccountsAPI, expensesAPI, creditAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 import { formatDate, monthStart, todayString } from '../utils/accountingEngine';
 import toast from 'react-hot-toast';
 import { Download, BarChart3, FileText, CreditCard, CalendarDays, PieChart, Pencil, Trash2 } from 'lucide-react';

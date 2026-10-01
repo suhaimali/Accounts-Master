@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { expensesAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import Modal, { ConfirmModal } from '../components/Modal';
 import toast from 'react-hot-toast';
 import {
-  Plus, Edit2, Trash2, Search, Download, TrendingDown,
-  Wallet, Smartphone, PieChart as PieChartIcon, Calendar,
-  ChevronLeft, ChevronRight, X
+  Plus, Edit2, Trash2, Search, TrendingDown,
+  Wallet, Smartphone, PieChart as PieChartIcon,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer
@@ -31,7 +31,7 @@ export default function ExpensesPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [catSummary, setCatSummary] = useState([]);
-  const [showAnalytics, setShowAnalytics] = useState(true);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -185,20 +185,9 @@ export default function ExpensesPage() {
         >
           <div>
             <h1 className="page-title">Expenses Management</h1>
-            <p className="page-desc">
-              Track business expenses, analyze category distributions, and manage vouchers.
-            </p>
           </div>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => setShowAnalytics(!showAnalytics)}
-              title="Toggle Category Analytics"
-            >
-              <PieChartIcon size={14} /> {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
-            </button>
-
             {can(['admin', 'manager', 'cashier']) && (
               <button
                 className="btn btn-primary btn-sm"
@@ -545,8 +534,7 @@ export default function ExpensesPage() {
                   <tr>
                     <th>Date</th>
                     <th>Category</th>
-                    <th>Description & Notes</th>
-                    <th>Vendor / Recipient</th>
+                    <th>Description</th>
                     <th>Payment Mode</th>
                     <th className="text-right">Amount</th>
                     {can(['admin', 'manager', 'cashier']) && (
@@ -569,14 +557,6 @@ export default function ExpensesPage() {
                         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                           {e.description}
                         </div>
-                        {e.notes && (
-                          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 1 }}>
-                            {e.notes}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-                        {e.vendor || '—'}
                       </td>
                       <td>
                         <span
@@ -732,28 +712,6 @@ export default function ExpensesPage() {
                 <option key={m}>{m.toUpperCase()}</option>
               ))}
             </select>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Vendor / Recipient</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Vendor name or shop"
-              value={form.vendor}
-              onChange={(e) => setForm((p) => ({ ...p, vendor: e.target.value }))}
-            />
-          </div>
-
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-            <label className="form-label">Additional Notes</label>
-            <textarea
-              className="form-textarea"
-              placeholder="Optional invoice number, approval details..."
-              value={form.notes}
-              onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-              rows={2}
-            />
           </div>
         </div>
       </Modal>

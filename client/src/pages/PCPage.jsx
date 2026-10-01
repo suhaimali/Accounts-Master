@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { pcAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
 import Modal, { ConfirmModal } from '../components/Modal';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, Wallet } from 'lucide-react';

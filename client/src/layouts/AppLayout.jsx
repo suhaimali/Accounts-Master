@@ -5,7 +5,6 @@ import Topbar from '../components/Topbar';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -17,22 +16,9 @@ export default function AppLayout() {
 
   return (
     <div className="app-layout">
-      {mobileOpen && (
-        <div className="sidebar-overlay active" onClick={() => setMobileOpen(false)} />
-      )}
-      <Sidebar
-        mobileOpen={mobileOpen}
-        setMobileOpen={setMobileOpen}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-      />
-      <div className={`main-content ${collapsed ? 'collapsed' : ''}`}>
-        <Topbar
-          mobileOpen={mobileOpen}
-          setMobileOpen={setMobileOpen}
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-        />
+      <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+      <div className="main-content">
+        <Topbar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
         <main className="page-content">
           <Outlet />
         </main>

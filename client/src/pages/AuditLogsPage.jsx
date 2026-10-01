@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auditLogsAPI } from '../api/services';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Shield, ShieldOff } from 'lucide-react';
 import { formatDate, todayString } from '../utils/accountingEngine';
 import toast from 'react-hot-toast';

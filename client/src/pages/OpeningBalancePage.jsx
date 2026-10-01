@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { carryForwardAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 import { formatDate, todayString } from '../utils/accountingEngine';
-import { Landmark, CheckCircle, Save, Edit2, Trash2, X, DollarSign, Plus } from 'lucide-react';
+import { Landmark, Save, Edit2, Trash2, X, DollarSign, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function OpeningBalancePage() {

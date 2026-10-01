@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { dailyAccountsAPI, cashCounterAPI } from '../api/services';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../hooks/useSettings';
 import {
   calculatePhysicalCash, calculateDifference, getReconciliationStatus,
   todayString, formatDate, DENOMINATIONS
