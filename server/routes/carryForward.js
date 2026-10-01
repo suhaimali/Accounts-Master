@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const DailyAccount = require('../models/DailyAccount');
-const { protect, authorize } = require('../middleware/auth');
 
 // @GET /api/carry-forward/history
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { limit = 30, branch } = req.query;
     const query = branch ? { branch } : {};
@@ -14,7 +13,7 @@ router.get('/', protect, async (req, res) => {
 });
 
 // @PUT /api/carry-forward/:accountId - set carry forward amount
-router.put('/:accountId', protect, authorize('admin', 'manager'), async (req, res) => {
+router.put('/:accountId', async (req, res) => {
   try {
     const { carryForward } = req.body;
     const account = await DailyAccount.findByIdAndUpdate(req.params.accountId, { carryForward }, { new: true });

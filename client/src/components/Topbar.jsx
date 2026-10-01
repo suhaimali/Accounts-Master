@@ -94,42 +94,6 @@ export default function Topbar({
           <span>Record Entry</span>
         </button>
 
-        {/* User Profile Pill with Simple Dropdown */}
-        <div className="topbar-user-menu-root" ref={dropdownRef}>
-          <button
-            className={`topbar-user-pill ${userDropdownOpen ? 'active' : ''}`}
-            onClick={() => setUserDropdownOpen((o) => !o)}
-            aria-label="User profile menu"
-            aria-expanded={userDropdownOpen}
-          >
-            <div className="topbar-user-avatar">
-              {user?.name?.[0]?.toUpperCase() || 'A'}
-            </div>
-            <div className="topbar-user-meta">
-              <span className="topbar-user-name">{user?.name || 'Admin User'}</span>
-              <span className="topbar-role-tag">{user?.role || 'admin'}</span>
-            </div>
-            <ChevronDown size={13} className="topbar-user-chevron" />
-          </button>
-
-          {/* Simple Dropdown Menu */}
-          {userDropdownOpen && (
-            <div className="topbar-dropdown-menu animate-fade-in" role="menu">
-              <div className="topbar-dropdown-header">
-                <div className="dropdown-user-name">{user?.name || 'Admin User'}</div>
-                <div className="dropdown-user-email">{user?.email || 'admin@accountsmaster.com'}</div>
-              </div>
-              <div className="topbar-dropdown-divider" />
-              <button
-                className="topbar-dropdown-item danger"
-                onClick={handleLogout}
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </header>
   );

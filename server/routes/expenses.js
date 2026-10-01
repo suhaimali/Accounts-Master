@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Expense = require('../models/Expense');
-const { protect, authorize } = require('../middleware/auth');
 const { createAuditLog } = require('../utils/auditLogger');
 
 // @GET /api/expenses
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 50, startDate, endDate, category, paymentMode, branch, search, dailyAccountId } = req.query;
     const query = {};
@@ -20,14 +19,14 @@ router.get('/', protect, async (req, res) => {
     }
     if (search) query.description = { $regex: search, $options: 'i' };
     const total = await Expense.countDocuments(query);
-    const data = await Expense.find(query).sort({ date: -1 }).limit(parseInt(limit)).skip((parseInt(page) - 1) * parseInt(limit)).populate('createdBy', 'name');
+    const data = await Expense.find(query).sort({ date: -1 }).limit(parseInt(limit)).skip((parseInt(page) - 1) * parseInt(limit));
     const totalAmount = await Expense.aggregate([{ $match: query }, { $group: { _id: null, total: { $sum: '$amount' } } }]);
     res.json({ success: true, data, total, totalAmount: totalAmount[0]?.total || 0, page: parseInt(page), pages: Math.ceil(total / limit) });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // @POST /api/expenses
-router.post('/', protect, authorize('admin', 'manager', 'cashier'), async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const expense = await Expense.create({ ...req.body, createdBy: req.user._id, approvedBy: req.user._id });
     await createAuditLog({ action: 'CREATE', module: 'Expense', documentId: expense._id, userId: req.user._id, userName: req.user.name, userRole: req.user.role, after: expense, req });
@@ -36,7 +35,7 @@ router.post('/', protect, authorize('admin', 'manager', 'cashier'), async (req, 
 });
 
 // @PUT /api/expenses/:id
-router.put('/:id', protect, authorize('admin', 'manager', 'cashier'), async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const before = await Expense.findById(req.params.id);
     const updated = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -47,7 +46,7 @@ router.put('/:id', protect, authorize('admin', 'manager', 'cashier'), async (req
 });
 
 // @DELETE /api/expenses/:id
-router.delete('/:id', protect, authorize('admin', 'manager'), async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const expense = await Expense.findByIdAndDelete(req.params.id);
     if (!expense) return res.status(404).json({ success: false, message: 'Expense not found' });
@@ -57,7 +56,7 @@ router.delete('/:id', protect, authorize('admin', 'manager'), async (req, res) =
 });
 
 // @GET /api/expenses/categories
-router.get('/categories/summary', protect, async (req, res) => {
+router.get('/categories/summary', async (req, res) => {
   try {
     const { startDate, endDate, branch } = req.query;
     const match = {};

@@ -13,7 +13,7 @@ const creditEntrySchema = new mongoose.Schema({
   balanceAmount: { type: Number, default: 0 },
   dueDate: { type: Date },
   dailyAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'DailyAccount' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId },
   branch: { type: String, default: 'Main' },
   notes: { type: String, default: '' },
 }, { timestamps: true });

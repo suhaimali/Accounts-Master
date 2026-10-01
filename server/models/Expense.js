@@ -11,11 +11,11 @@ const expenseSchema = new mongoose.Schema({
   vendor: { type: String, default: '' },
   receipt: { type: String, default: '' }, // receipt number or reference
   dailyAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'DailyAccount' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId },
   branch: { type: String, default: 'Main' },
   notes: { type: String, default: '' },
   isApproved: { type: Boolean, default: true },
-  approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  approvedBy: { type: mongoose.Schema.Types.ObjectId },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Expense', expenseSchema);

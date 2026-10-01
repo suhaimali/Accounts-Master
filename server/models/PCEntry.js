@@ -12,7 +12,7 @@ const pcEntrySchema = new mongoose.Schema({
   settledAmount: { type: Number, default: 0 },
   settledDate: { type: Date },
   dailyAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'DailyAccount' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId },
   branch: { type: String, default: 'Main' },
   notes: { type: String, default: '' },
 }, { timestamps: true });

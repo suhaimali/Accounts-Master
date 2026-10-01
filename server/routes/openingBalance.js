@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const DailyAccount = require('../models/DailyAccount');
-const { protect } = require('../middleware/auth');
 
 // Opening balance is derived from previous day's carry forward
 // @GET /api/opening-balance/:date
-router.get('/:date', protect, async (req, res) => {
+router.get('/:date', async (req, res) => {
   try {
     const { date } = req.params;
     const branch = req.query.branch || 'Main';
@@ -19,7 +18,7 @@ router.get('/:date', protect, async (req, res) => {
 });
 
 // @GET /api/opening-balance/history
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { limit = 30, branch } = req.query;
     const query = branch ? { branch } : {};

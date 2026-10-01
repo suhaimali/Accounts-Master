@@ -4,10 +4,9 @@ const DailyAccount = require('../models/DailyAccount');
 const Expense = require('../models/Expense');
 const CreditEntry = require('../models/CreditEntry');
 const GpayTransaction = require('../models/GpayTransaction');
-const { protect } = require('../middleware/auth');
 
 // @GET /api/dashboard/summary
-router.get('/summary', protect, async (req, res) => {
+router.get('/summary', async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const branch = req.query.branch || 'Main';

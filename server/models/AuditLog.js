@@ -4,7 +4,7 @@ const auditLogSchema = new mongoose.Schema({
   action: { type: String, required: true }, // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, CLOSE_DAY
   module: { type: String, required: true }, // DailyAccount, Expense, Credit, etc.
   documentId: { type: mongoose.Schema.Types.ObjectId },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   userName: { type: String },
   userRole: { type: String },
   before: { type: mongoose.Schema.Types.Mixed }, // snapshot before change

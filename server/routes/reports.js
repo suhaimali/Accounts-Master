@@ -4,17 +4,16 @@ const DailyAccount = require('../models/DailyAccount');
 const Expense = require('../models/Expense');
 const CreditEntry = require('../models/CreditEntry');
 const GpayTransaction = require('../models/GpayTransaction');
-const { protect } = require('../middleware/auth');
 const XLSX = require('xlsx');
 
 // @GET /api/reports/daily?startDate=&endDate=&branch=
-router.get('/daily', protect, async (req, res) => {
+router.get('/daily', async (req, res) => {
   try {
     const { startDate, endDate, branch } = req.query;
     const query = {};
     if (branch) query.branch = branch;
     if (startDate || endDate) { query.dateString = {}; if (startDate) query.dateString.$gte = startDate; if (endDate) query.dateString.$lte = endDate; }
-    const accounts = await DailyAccount.find(query).sort({ dateString: 1 }).populate('closedBy', 'name');
+    const accounts = await DailyAccount.find(query).sort({ dateString: 1 });
     const summary = {
       totalSales: accounts.reduce((s, a) => s + a.totalSales, 0),
       totalCashSales: accounts.reduce((s, a) => s + a.cashSales, 0),
@@ -30,7 +29,7 @@ router.get('/daily', protect, async (req, res) => {
 });
 
 // @GET /api/reports/expenses?startDate=&endDate=&category=
-router.get('/expenses', protect, async (req, res) => {
+router.get('/expenses', async (req, res) => {
   try {
     const { startDate, endDate, branch, category } = req.query;
     const match = {};
@@ -47,7 +46,7 @@ router.get('/expenses', protect, async (req, res) => {
 });
 
 // @GET /api/reports/reconciliation?startDate=&endDate=
-router.get('/reconciliation', protect, async (req, res) => {
+router.get('/reconciliation', async (req, res) => {
   try {
     const { startDate, endDate, branch } = req.query;
     const query = {};
@@ -66,7 +65,7 @@ router.get('/reconciliation', protect, async (req, res) => {
 });
 
 // @GET /api/reports/credit-outstanding
-router.get('/credit-outstanding', protect, async (req, res) => {
+router.get('/credit-outstanding', async (req, res) => {
   try {
     const branch = req.query.branch;
     const query = { status: { $ne: 'paid' } };
@@ -77,7 +76,7 @@ router.get('/credit-outstanding', protect, async (req, res) => {
 });
 
 // @GET /api/reports/export?type=daily&startDate=&endDate=&format=xlsx
-router.get('/export', protect, async (req, res) => {
+router.get('/export', async (req, res) => {
   try {
     const { type = 'daily', startDate, endDate, branch, format = 'xlsx' } = req.query;
     let data = [];

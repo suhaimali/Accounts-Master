@@ -4,7 +4,6 @@ const DailyAccount = require('../models/DailyAccount');
 const Expense = require('../models/Expense');
 const CreditEntry = require('../models/CreditEntry');
 const GpayTransaction = require('../models/GpayTransaction');
-const { protect, authorize } = require('../middleware/auth');
 const { createAuditLog } = require('../utils/auditLogger');
 const {
   calculateDenominations, calculatePhysicalCash, calculateExpectedCash,
@@ -83,7 +82,7 @@ const recalculateAccount = async (accountId) => {
 };
 
 // @GET /api/daily-accounts
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 30, startDate, endDate, branch, status } = req.query;
     const query = {};
@@ -99,36 +98,36 @@ router.get('/', protect, async (req, res) => {
       .sort({ dateString: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit))
-      .populate('createdBy', 'name')
-      .populate('closedBy', 'name');
+      
+      ;
     res.json({ success: true, data: accounts, total, page: parseInt(page), pages: Math.ceil(total / limit) });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // @GET /api/daily-accounts/today
-router.get('/today', protect, async (req, res) => {
+router.get('/today', async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const branch = req.query.branch || 'Main';
     const account = await getOrCreateDailyAccount(today, req.user._id, branch);
-    const populated = await DailyAccount.findById(account._id).populate('createdBy', 'name').populate('closedBy', 'name');
+    const populated = await DailyAccount.findById(account._id);
     res.json({ success: true, data: populated });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // @GET /api/daily-accounts/:date
-router.get('/:date', protect, async (req, res) => {
+router.get('/:date', async (req, res) => {
   try {
     const { date } = req.params;
     const branch = req.query.branch || 'Main';
-    const account = await DailyAccount.findOne({ dateString: date, branch }).populate('createdBy', 'name').populate('closedBy', 'name');
+    const account = await DailyAccount.findOne({ dateString: date, branch });
     if (!account) return res.status(404).json({ success: false, message: 'No account found for this date' });
     res.json({ success: true, data: account });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
 // @PUT /api/daily-accounts/:id - update cash sales, notes, etc.
-router.put('/:id', protect, authorize('admin', 'manager', 'cashier'), async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.id);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
@@ -150,7 +149,7 @@ router.put('/:id', protect, authorize('admin', 'manager', 'cashier'), async (req
 });
 
 // @PUT /api/daily-accounts/:id/denominations
-router.put('/:id/denominations', protect, authorize('admin', 'manager', 'cashier'), async (req, res) => {
+router.put('/:id/denominations', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.id);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
@@ -167,7 +166,7 @@ router.put('/:id/denominations', protect, authorize('admin', 'manager', 'cashier
 });
 
 // @POST /api/daily-accounts/:id/close - close the day
-router.post('/:id/close', protect, authorize('admin', 'manager'), async (req, res) => {
+router.post('/:id/close', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.id);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
@@ -185,7 +184,7 @@ router.post('/:id/close', protect, authorize('admin', 'manager'), async (req, re
 });
 
 // @POST /api/daily-accounts/:id/reopen
-router.post('/:id/reopen', protect, authorize('admin'), async (req, res) => {
+router.post('/:id/reopen', async (req, res) => {
   try {
     const account = await DailyAccount.findByIdAndUpdate(req.params.id, { isClosed: false, closedAt: null }, { new: true });
     await createAuditLog({ action: 'REOPEN_DAY', module: 'DailyAccount', documentId: account._id, userId: req.user._id, userName: req.user.name, userRole: req.user.role, req });
@@ -194,7 +193,7 @@ router.post('/:id/reopen', protect, authorize('admin'), async (req, res) => {
 });
 
 // @DELETE /api/daily-accounts/:id
-router.delete('/:id', protect, authorize('admin'), async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.id);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });

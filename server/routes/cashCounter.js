@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const DailyAccount = require('../models/DailyAccount');
-const { protect, authorize } = require('../middleware/auth');
 const { calculateDenominations, calculatePhysicalCash, calculateReconciliation } = require('../utils/accountingEngine');
 
 // @GET /api/cash-counter/:date
-router.get('/:date', protect, async (req, res) => {
+router.get('/:date', async (req, res) => {
   try {
     const { date } = req.params;
     const branch = req.query.branch || 'Main';
@@ -16,7 +15,7 @@ router.get('/:date', protect, async (req, res) => {
 });
 
 // @PUT /api/cash-counter/:accountId - update denomination counts
-router.put('/:accountId', protect, authorize('admin', 'manager', 'cashier'), async (req, res) => {
+router.put('/:accountId', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.accountId);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });

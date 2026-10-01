@@ -1,12 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './contexts/AuthContext';
-import { SettingsProvider } from './contexts/SettingsContext';
-import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
 
 // Pages
-import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import DailyAccountsPage from './pages/DailyAccountsPage';
 import CashCounterPage from './pages/CashCounterPage';
@@ -22,8 +18,6 @@ import HistoryPage from './pages/HistoryPage';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <SettingsProvider>
           <Toaster
             position="top-right"
             toastOptions={{
@@ -40,8 +34,7 @@ function App() {
             }}
           />
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+            <Route path="/" element={<AppLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="daily-accounts" element={<DailyAccountsPage />} />
@@ -58,8 +51,6 @@ function App() {
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-        </SettingsProvider>
-      </AuthProvider>
     </BrowserRouter>
   );
 }

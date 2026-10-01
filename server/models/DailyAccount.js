@@ -41,8 +41,8 @@ const dailyAccountSchema = new mongoose.Schema({
   notes: { type: String, default: '' },
   isClosed: { type: Boolean, default: false },
   closedAt: { type: Date },
-  closedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  closedBy: { type: mongoose.Schema.Types.ObjectId },
+  createdBy: { type: mongoose.Schema.Types.ObjectId },
   branch: { type: String, default: 'Main' },
 }, { timestamps: true });
 

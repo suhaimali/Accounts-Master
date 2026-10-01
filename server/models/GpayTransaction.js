@@ -12,7 +12,7 @@ const gpayTransactionSchema = new mongoose.Schema({
   upiId: { type: String, default: '' },
   status: { type: String, enum: ['success', 'pending', 'failed'], default: 'success' },
   dailyAccountId: { type: mongoose.Schema.Types.ObjectId, ref: 'DailyAccount' },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: mongoose.Schema.Types.ObjectId },
   branch: { type: String, default: 'Main' },
   notes: { type: String, default: '' },
 }, { timestamps: true });

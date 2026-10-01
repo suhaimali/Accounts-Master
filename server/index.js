@@ -20,10 +20,13 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500 });
 app.use('/api/', limiter);
 
+// Global Mock User Middleware (Since Auth was removed)
+app.use((req, res, next) => {
+  req.user = { _id: '000000000000000000000000', name: 'Admin', role: 'admin' };
+  next();
+});
+
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/settings', require('./routes/settings'));
 app.use('/api/daily-accounts', require('./routes/dailyAccounts'));
 app.use('/api/credit', require('./routes/credit'));
 app.use('/api/expenses', require('./routes/expenses'));

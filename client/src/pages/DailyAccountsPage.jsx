@@ -59,10 +59,6 @@ function SalesForm({ account, onUpdate, disabled }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div className="card-title">Sales Breakdown &amp; Entry</div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: 999 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite' }} />
-              LIVE DB
-            </span>
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>
             Register sales channels for {formatDate(account?.dateString, 'DD/MM/YYYY')}

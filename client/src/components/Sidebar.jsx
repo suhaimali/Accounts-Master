@@ -78,9 +78,6 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
             <div className="sb-user-name">{user?.name || 'Admin'}</div>
             <div className="sb-user-role">Administrator</div>
           </div>
-          <button className="sb-logout" onClick={handleLogout} title="Logout" id="sidebar-logout-btn">
-            <LogOut size={15} />
-          </button>
         </div>
 
       </aside>
