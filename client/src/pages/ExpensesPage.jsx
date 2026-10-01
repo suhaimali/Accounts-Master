@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
   Plus, Edit2, Trash2, Search, TrendingDown,
   Wallet, Smartphone, PieChart as PieChartIcon,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Receipt
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer
@@ -499,7 +499,9 @@ export default function ExpensesPage() {
           </div>
         ) : expenses.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 36, marginBottom: 10 }}>🧾</div>
+            <div style={{ marginBottom: 10 }}>
+              <Receipt size={40} strokeWidth={1.2} />
+            </div>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
               No Expenses Found
             </h3>
