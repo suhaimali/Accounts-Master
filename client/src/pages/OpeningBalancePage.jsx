@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { carryForwardAPI } from '../api/services';
+import { carryForwardAPI, dailyAccountsAPI } from '../api/services';
 import { useSettings } from '../hooks/useSettings';
 import { formatDate, todayString } from '../utils/accountingEngine';
 import { Landmark, Save, Edit2, Trash2, X, DollarSign, Plus } from 'lucide-react';
@@ -41,7 +41,11 @@ export default function OpeningBalancePage() {
     if (isNaN(val) || val < 0) { toast.error('Enter a valid amount'); return; }
     setSaving(true);
     try {
-      await carryForwardAPI.setOpening({ amount: val, dateString: todayString() });
+      // Get today's account, which creates it if it doesn't exist
+      const todayRes = await dailyAccountsAPI.getToday();
+      const todayAccount = todayRes.data;
+      // Update opening balance
+      await dailyAccountsAPI.update(todayAccount._id, { openingBalance: val });
       toast.success('Opening balance saved!');
       setAmount('');
       setShowCreate(false);
@@ -57,7 +61,7 @@ export default function OpeningBalancePage() {
     if (isNaN(val) || val < 0) { toast.error('Enter a valid amount'); return; }
     setEditSaving(true);
     try {
-      await carryForwardAPI.update(editRow._id, val);
+      await dailyAccountsAPI.update(editRow._id, { openingBalance: val });
       toast.success('Updated!');
       setEditRow(null);
       loadHistory();

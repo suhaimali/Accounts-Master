@@ -68,6 +68,7 @@ export const cashCounterAPI = {
 export const carryForwardAPI = {
   getAll: (params) => api.get('/carry-forward', { params }),
   update: (accountId, carryForward) => api.put(`/carry-forward/${accountId}`, { carryForward }),
+  delete: (id) => api.delete(`/daily-accounts/${id}`),
 };
 
 export const dashboardAPI = {

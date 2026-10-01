@@ -191,7 +191,7 @@ export default function CashCounterPage() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: 24, alignItems: 'start' }}>
           
           {/* ── Denomination Entry Card ── */}
           <div className="card" style={{ borderTop: '4px solid #7c3aed' }}>
@@ -224,7 +224,7 @@ export default function CashCounterPage() {
                     </span>
                   </div>
 
-                  <div style={{ flex: 1, padding: '0 20px' }}>
+                  <div style={{ flex: 1, padding: '0 12px' }}>
                     <input
                       type="number"
                       value={d.count === 0 ? '' : d.count}
@@ -251,7 +251,7 @@ export default function CashCounterPage() {
 
             <div style={{ 
               background: '#f8fafc', padding: '20px', borderRadius: '0 0 var(--r-md) var(--r-md)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10,
               borderTop: '1px solid var(--border)'
             }}>
               <span style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-sub)' }}>Total Physical Cash</span>
