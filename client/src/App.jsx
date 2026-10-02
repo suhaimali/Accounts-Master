@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import AppLayout from './layouts/AppLayout';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import DashboardPage from './pages/DashboardPage';
@@ -18,42 +20,44 @@ import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
-    <BrowserRouter>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border)',
-                borderRadius: '10px',
-                fontSize: '14px',
-              },
-              success: { iconTheme: { primary: '#10b981', secondary: 'white' } },
-              error: { iconTheme: { primary: '#ef4444', secondary: 'white' } },
-            }}
-          />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<AppLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="daily-accounts" element={<DailyAccountsPage />} />
-              <Route path="cash-counter" element={<CashCounterPage />} />
-              <Route path="carry-forward" element={<CarryForwardPage />} />
-              <Route path="credit" element={<CreditPage />} />
-              <Route path="expenses" element={<ExpensesPage />} />
-              <Route path="gpay" element={<GpayPage />} />
-              <Route path="pc" element={<PCPage />} />
-              <Route path="opening-balance" element={<OpeningBalancePage />} />
-              <Route path="reports" element={<ReportsPage />} />
-              <Route path="history" element={<HistoryPage />} />
+    <AuthProvider>
+      <BrowserRouter>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                },
+                success: { iconTheme: { primary: '#10b981', secondary: 'white' } },
+                error: { iconTheme: { primary: '#ef4444', secondary: 'white' } },
+              }}
+            />
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="daily-accounts" element={<DailyAccountsPage />} />
+                <Route path="cash-counter" element={<CashCounterPage />} />
+                <Route path="carry-forward" element={<CarryForwardPage />} />
+                <Route path="credit" element={<CreditPage />} />
+                <Route path="expenses" element={<ExpensesPage />} />
+                <Route path="gpay" element={<GpayPage />} />
+                <Route path="pc" element={<PCPage />} />
+                <Route path="opening-balance" element={<OpeningBalancePage />} />
+                <Route path="reports" element={<ReportsPage />} />
+                <Route path="history" element={<HistoryPage />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Route>
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-    </BrowserRouter>
+            </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
