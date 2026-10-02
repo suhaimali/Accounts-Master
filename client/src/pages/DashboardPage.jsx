@@ -114,6 +114,9 @@ export default function DashboardPage() {
   // Filtered Ledger
   const filteredLedger = useMemo(() => {
     return (data?.last7Days || []).filter((row) => {
+      const isPlaceholder = !row.totalSales && !row.totalExpenses && !row.cashSales && !row.expectedCash && !row.difference;
+      if (isPlaceholder) return false;
+
       const dateFormatted = formatDate(row.dateString, settings?.date_format || 'DD/MM/YYYY').toLowerCase();
       const matchesSearch = dateFormatted.includes(searchTerm.toLowerCase());
       const rowStatus = row.status || (row.difference === 0 ? 'BALANCED' : row.difference < 0 ? 'SHORT' : 'EXCESS');
@@ -822,12 +825,14 @@ export default function DashboardPage() {
           padding: 10px 12px;
           border-bottom: 1px solid #e2e8f0;
           text-align: left;
+          white-space: nowrap;
         }
 
         .simple-table td {
           padding: 11px 12px;
           border-bottom: 1px solid #f1f5f9;
           color: #1e293b;
+          white-space: nowrap;
         }
 
         .simple-table tr:hover td {
