@@ -4,7 +4,7 @@
   "description": "Accounts Master - Daily Accounting & Cash Reconciliation Platform",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "node --no-warnings ./node_modules/concurrently/dist/bin/concurrently.js --names \"server,client\" -c \"bgBlue.bold,bgGreen.bold\" \"npm run server\" \"npm run client\"",
     "server": "nodemon --no-warnings --watch server server/index.js",
     "client": "cd client && npm run dev",
     "install:all": "npm install && cd client && npm install",

@@ -5,7 +5,7 @@ import {
   TrendingUp, TrendingDown, Wallet, CreditCard,
   AlertTriangle, CheckCircle2, ArrowRight,
   BookOpen, Calculator, Plus,
-  RefreshCw, Search
+  RefreshCw, Search, LogOut
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -49,10 +49,12 @@ const SimpleStatusBadge = ({ status, difference = 0, formatCurrency }) => {
   return <span className="badge badge-secondary">Pending Count</span>;
 };
 
+const CURRENT_DATE = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { formatCurrency, settings } = useSettings();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -114,9 +116,6 @@ export default function DashboardPage() {
   // Filtered Ledger
   const filteredLedger = useMemo(() => {
     return (data?.last7Days || []).filter((row) => {
-      const isPlaceholder = !row.totalSales && !row.totalExpenses && !row.cashSales && !row.expectedCash && !row.difference;
-      if (isPlaceholder) return false;
-
       const dateFormatted = formatDate(row.dateString, settings?.date_format || 'DD/MM/YYYY').toLowerCase();
       const matchesSearch = dateFormatted.includes(searchTerm.toLowerCase());
       const rowStatus = row.status || (row.difference === 0 ? 'BALANCED' : row.difference < 0 ? 'SHORT' : 'EXCESS');
@@ -127,8 +126,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, color: '#64748b' }}>
-        <span>Loading...</span>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#3b82f6' }}>
+        <div className="spinning" style={{ width: 40, height: 40, borderRadius: '50%', border: '4px solid #eff6ff', borderTopColor: '#3b82f6' }}></div>
       </div>
     );
   }
@@ -158,7 +157,7 @@ export default function DashboardPage() {
               Welcome back, {user?.name || 'Admin'}
             </div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
-              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              {CURRENT_DATE}
             </div>
           </div>
         </div>
@@ -176,6 +175,9 @@ export default function DashboardPage() {
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => navigate('/daily-accounts')}>
             <BookOpen size={14} /> Daily Accounts
+          </button>
+          <button className="btn btn-secondary btn-sm btn-icon" style={{ color: '#ef4444', borderColor: '#fee2e2', background: '#fef2f2' }} onClick={() => { logout(); navigate('/login'); }} title="Log out">
+            <LogOut size={14} />
           </button>
         </div>
       </div>

@@ -23,6 +23,8 @@ const PAGE_TITLES = {
   '/audit-logs': 'Security Logs',
 };
 
+const CURRENT_WEEKDAY = new Date().toLocaleDateString('en-IN', { weekday: 'short' });
+
 export default function Topbar({
   mobileOpen,
   setMobileOpen,
@@ -80,7 +82,7 @@ export default function Topbar({
         <div className="topbar-date-chip">
           <Calendar size={13} className="date-icon" />
           <span>
-            {new Date().toLocaleDateString('en-IN', { weekday: 'short' })}, {today}
+            {CURRENT_WEEKDAY}, {today}
           </span>
         </div>
 
