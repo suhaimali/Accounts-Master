@@ -125,7 +125,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300, color: '#64748b' }}>
-        <span>Loading financial overview...</span>
+        <span>Loading...</span>
       </div>
     );
   }

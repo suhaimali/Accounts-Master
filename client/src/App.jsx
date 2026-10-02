@@ -14,6 +14,7 @@ import PCPage from './pages/PCPage';
 import OpeningBalancePage from './pages/OpeningBalancePage';
 import ReportsPage from './pages/ReportsPage';
 import HistoryPage from './pages/HistoryPage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             }}
           />
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<AppLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
