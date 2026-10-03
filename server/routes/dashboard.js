@@ -34,6 +34,9 @@ router.get('/summary', async (req, res) => {
           openingBalance: todayAccount.openingBalance,
           totalSales: todayAccount.totalSales,
           cashSales: todayAccount.cashSales,
+          creditSales: todayAccount.creditSales,
+          gpaySales: todayAccount.gpaySales,
+          pcSales: todayAccount.pcSales,
           totalExpenses: todayAccount.totalExpenses,
           physicalCash: todayAccount.physicalCashTotal,
           expectedCash: todayAccount.expectedCash,
@@ -41,6 +44,7 @@ router.get('/summary', async (req, res) => {
           status: todayAccount.status,
           isClosed: todayAccount.isClosed,
           carryForward: todayAccount.carryForward,
+          cfBreakdown: todayAccount.cfBreakdown || { cf180: 0, cf20: 0, cfOthers: 0 },
         } : null,
         month: {
           totalSales: monthSales[0]?.total || 0,

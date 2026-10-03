@@ -1,4 +1,5 @@
 import api from './client';
+import { todayString } from '../utils/accountingEngine';
 
 export const authAPI = {
   login: (data) => api.post('/auth/login', data),
@@ -22,7 +23,7 @@ export const settingsAPI = {
 
 export const dailyAccountsAPI = {
   getAll: (params) => api.get('/daily-accounts', { params }),
-  getToday: (branch) => api.get('/daily-accounts/today', { params: { branch } }),
+  getToday: (branch) => api.get('/daily-accounts/today', { params: { branch, date: todayString() } }),
   getByDate: (date, branch) => api.get(`/daily-accounts/${date}`, { params: { branch } }),
   update: (id, data) => api.put(`/daily-accounts/${id}`, data),
   updateDenominations: (id, denominations) => api.put(`/daily-accounts/${id}/denominations`, { denominations }),

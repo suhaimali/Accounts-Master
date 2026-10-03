@@ -103,8 +103,17 @@ export default function DashboardPage() {
   const todayDifference = today ? today.difference : 0;
   const reconciliationStatus = today?.status || (todayDifference === 0 ? 'BALANCED' : todayDifference < 0 ? 'SHORT' : 'EXCESS');
 
-  const gpayVal = month?.totalGpay ? Math.round(month.totalGpay / 7) : Math.round(todaySales * 0.35);
-  const creditVal = Math.max(0, todaySales - todayCashSales - gpayVal) || Math.round(todaySales * 0.13);
+  const gpayVal = today?.gpaySales || (month?.totalGpay ? Math.round(month.totalGpay / 7) : Math.round(todaySales * 0.35));
+  const creditVal = today?.creditSales || (Math.max(0, todaySales - todayCashSales - gpayVal) || Math.round(todaySales * 0.13));
+
+  // Calculated Detailed Summary Fields
+  const balWithout = todaySales - (todayExpenses + (today?.gpaySales || 0)) + (today?.openingBalance || 0);
+  const balWithPc = balWithout + (today?.pcSales || 0);
+  const balWithPcCf = balWithPc + (today?.carryForward || 0);
+
+  const diffWithout = todayPhysicalCash - balWithout;
+  const diffWithPc = todayPhysicalCash - balWithPc;
+  const diffWithPcCf = todayPhysicalCash - balWithPcCf;
 
   const channels = [
     { name: 'Cash Sales', value: todayCashSales, color: '#2563eb' },
@@ -116,6 +125,10 @@ export default function DashboardPage() {
   // Filtered Ledger
   const filteredLedger = useMemo(() => {
     return (data?.last7Days || []).filter((row) => {
+      // Exclude auto-created empty accounts (where everything is 0)
+      const isEmpty = (row.totalSales || 0) === 0 && (row.cashSales || 0) === 0 && (row.totalExpenses || 0) === 0 && (row.physicalCashTotal || 0) === 0 && (row.difference || 0) === 0 && (row.carryForward || 0) === 0;
+      if (isEmpty) return false;
+      
       const dateFormatted = formatDate(row.dateString, settings?.date_format || 'DD/MM/YYYY').toLowerCase();
       const matchesSearch = dateFormatted.includes(searchTerm.toLowerCase());
       const rowStatus = row.status || (row.difference === 0 ? 'BALANCED' : row.difference < 0 ? 'SHORT' : 'EXCESS');
@@ -233,6 +246,73 @@ export default function DashboardPage() {
           >
             Recount Drawer →
           </button>
+        </div>
+      </div>
+
+      {/* 2.5 Modern Detailed Reconciliation Summary */}
+      <div className="card" style={{ padding: '20px' }}>
+        <div className="chart-header" style={{ marginBottom: '16px' }}>
+          <div>
+            <h3 className="chart-title">Detailed Reconciliation</h3>
+            <p className="chart-subtitle">Step-by-step breakdown of balances</p>
+          </div>
+          <div style={{ padding: '6px 12px', background: diffWithout >= 0 ? '#ecfdf5' : '#fef2f2', color: diffWithout >= 0 ? '#059669' : '#dc2626', borderRadius: '8px', fontWeight: 700, fontSize: '14px', border: `1px solid ${diffWithout >= 0 ? '#a7f3d0' : '#fecaca'}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            STATUS: {diffWithout > 0 ? `+${formatCurrency(diffWithout)} EXCESS` : diffWithout < 0 ? `${formatCurrency(Math.abs(diffWithout))} SHORT` : 'BALANCED'}
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
+          {/* Breakdown List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#f8fafc', borderRadius: '6px' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Total Sales</span>
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>{formatCurrency(todaySales)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#f8fafc', borderRadius: '6px' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Balance (Without PC/CF)</span>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>{formatCurrency(balWithout)}</div>
+                <div style={{ fontSize: '11px', color: diffWithout >= 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>{diffWithout > 0 ? `+${diffWithout} EXES` : diffWithout < 0 ? `${Math.abs(diffWithout)} SHORT` : 'BALANCED'}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#f8fafc', borderRadius: '6px' }}>
+              <span style={{ fontWeight: 600, color: '#475569' }}>Balance (With PC)</span>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700, color: '#0f172a' }}>{formatCurrency(balWithPc)}</div>
+                <div style={{ fontSize: '11px', color: diffWithPc >= 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>{diffWithPc > 0 ? `+${diffWithPc} EXES` : diffWithPc < 0 ? `${Math.abs(diffWithPc)} SHORT` : 'BALANCED'}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#eff6ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+              <span style={{ fontWeight: 700, color: '#1e3a8a' }}>Final Balance (+CF)</span>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 800, color: '#1d4ed8' }}>{formatCurrency(balWithPcCf)}</div>
+                <div style={{ fontSize: '11px', color: diffWithPcCf >= 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>{diffWithPcCf > 0 ? `+${diffWithPcCf} EXES` : diffWithPcCf < 0 ? `${Math.abs(diffWithPcCf)} SHORT` : 'BALANCED'}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Info Cards (CF) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px', height: '100%' }}>
+              <div style={{ fontSize: '13px', color: '#b45309', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Carry Forward (CF) Breakdown</div>
+              <div style={{ fontSize: '28px', fontWeight: 800, color: '#92400e', marginBottom: '16px' }}>{formatCurrency(today?.carryForward || 0)}</div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #fcd34d' }}>
+                  <span style={{ color: '#b45309', fontWeight: 600 }}>180</span>
+                  <span style={{ fontWeight: 800, color: '#92400e' }}>{today?.cfBreakdown?.cf180 || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #fcd34d' }}>
+                  <span style={{ color: '#b45309', fontWeight: 600 }}>20</span>
+                  <span style={{ fontWeight: 800, color: '#92400e' }}>{today?.cfBreakdown?.cf20 || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', color: '#b45309', fontWeight: 700, gridColumn: 'span 2' }}>
+                  <span>OTHERS</span>
+                  <span style={{ fontWeight: 800, color: '#92400e' }}>{formatCurrency(today?.cfBreakdown?.cfOthers || 0)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

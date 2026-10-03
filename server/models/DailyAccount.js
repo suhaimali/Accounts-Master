@@ -19,6 +19,7 @@ const dailyAccountSchema = new mongoose.Schema({
   cashSales: { type: Number, default: 0 },
   creditSales: { type: Number, default: 0 },
   gpaySales: { type: Number, default: 0 },
+  pcList: { type: [Number], default: [] },
   pcSales: { type: Number, default: 0 },
 
   // Expenses
@@ -26,10 +27,25 @@ const dailyAccountSchema = new mongoose.Schema({
 
   // Cash Counter (actual physical count)
   denominations: [denominationSchema],
+  pcDenominations: [{
+    value: { type: Number },
+    count: { type: Number, default: 0 },
+    total: { type: Number, default: 0 }
+  }],
   physicalCashTotal: { type: Number, default: 0 },
 
   // Carry forward
   carryForward: { type: Number, default: 0 },
+  cfBreakdown: {
+    cf180: { type: Number, default: 0 },
+    cf20: { type: Number, default: 0 },
+    cfOthers: { type: Number, default: 0 }
+  },
+  cfList: [{
+    multiplier: { type: Number, default: 0 },
+    count: { type: Number, default: 0 },
+    total: { type: Number, default: 0 }
+  }],
 
   // Reconciliation
   expectedCash: { type: Number, default: 0 },    // openingBalance + cashSales - expenses - carryForward(outgoing)

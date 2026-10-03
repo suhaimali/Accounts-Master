@@ -27,14 +27,28 @@ export const getReconciliationStatus = (difference, tolerance = 1) => {
 export const calculateTotalSales = ({ cashSales, creditSales, gpaySales, pcSales }) =>
   (Number(cashSales) || 0) + (Number(creditSales) || 0) + (Number(gpaySales) || 0) + (Number(pcSales) || 0);
 
+// Local-time YYYY-MM-DD (avoids UTC shift, e.g. IST before 5:30 AM)
+const toLocalDateString = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// Parse 'YYYY-MM-DD' as a local date (new Date('YYYY-MM-DD') is treated as UTC)
+const parseDate = (value) => {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  return new Date(value);
+};
+
 export const formatDateString = (date) => {
   if (!date) return '';
-  return new Date(date).toISOString().split('T')[0];
+  return toLocalDateString(parseDate(date));
 };
 
 export const formatDate = (dateString, format = 'DD/MM/YYYY') => {
   if (!dateString) return '';
-  const d = new Date(dateString);
+  const d = parseDate(dateString);
+  if (Number.isNaN(d.getTime())) return '';
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
@@ -56,5 +70,5 @@ export const getStatusColor = (status) => {
   }
 };
 
-export const todayString = () => new Date().toISOString().split('T')[0];
+export const todayString = () => toLocalDateString(new Date());
 export const monthStart = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`; };

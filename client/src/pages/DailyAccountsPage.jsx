@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dailyAccountsAPI, expensesAPI } from '../api/services';
+import { dailyAccountsAPI } from '../api/services';
 import { useSettings } from '../hooks/useSettings';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -8,33 +8,49 @@ import {
   getReconciliationStatus, todayString, formatDate
 } from '../utils/accountingEngine';
 import toast from 'react-hot-toast';
-import Modal, { ConfirmModal } from '../components/Modal';
+import { ConfirmModal } from '../components/Modal';
 import {
   Save, Lock, Unlock, RefreshCw,
   Calculator, CheckCircle, AlertTriangle, AlertCircle, Clock,
   ArrowRight, Calendar
 } from 'lucide-react';
 
+
 function SalesForm({ account, onUpdate, disabled }) {
   const { formatCurrency } = useSettings();
-  const [form, setForm] = useState({ cashSales: '', pcSales: '', notes: '' });
+  const [form, setForm] = useState({ cashSales: '', notes: '' });
+  const [pcList, setPcList] = useState([]);
+  const [cfList, setCfList] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (account) {
       setForm({
         cashSales: account.cashSales || '',
-        pcSales: account.pcSales || '',
         notes: account.notes || '',
       });
+      
+      setPcList(account.pcList?.length > 0 ? account.pcList : ['']);
+      
+      // Migrate old data if present, otherwise use new cfList
+      let initialCfList = account.cfList || [];
+      if (initialCfList.length === 0 && account.cfBreakdown) {
+         if (account.cfBreakdown.cf180 > 0) initialCfList.push({ multiplier: 180, count: account.cfBreakdown.cf180 });
+         if (account.cfBreakdown.cf20 > 0) initialCfList.push({ multiplier: 20, count: account.cfBreakdown.cf20 });
+         if (account.cfBreakdown.cfOthers > 0) initialCfList.push({ multiplier: 1, count: account.cfBreakdown.cfOthers });
+      }
+      setCfList(initialCfList);
     }
   }, [account?._id]);
+
+  const pcTotal = pcList.reduce((a, b) => a + (Number(b) || 0), 0);
+  const cfTotal = cfList.reduce((acc, item) => acc + ((Number(item.multiplier) || 0) * (Number(item.count) || 0)), 0);
 
   const totalSales = calculateTotalSales({
     cashSales: form.cashSales || 0,
     creditSales: account?.creditSales || 0,
     gpaySales: account?.gpaySales || 0,
-    pcSales: form.pcSales || 0,
+    pcSales: pcTotal,
   });
 
   const handleSave = async () => {
@@ -42,8 +58,13 @@ function SalesForm({ account, onUpdate, disabled }) {
     try {
       await onUpdate({
         cashSales: Number(form.cashSales) || 0,
-        pcSales: Number(form.pcSales) || 0,
+        pcList: pcList.map(v => Number(v) || 0).filter(v => v > 0),
         notes: form.notes,
+        cfList: cfList.map(item => ({
+          multiplier: Number(item.multiplier) || 0,
+          count: Number(item.count) || 0,
+          total: (Number(item.multiplier) || 0) * (Number(item.count) || 0)
+        }))
       });
       toast.success('Sales updated successfully!');
     } catch (err) {
@@ -92,23 +113,106 @@ function SalesForm({ account, onUpdate, disabled }) {
         </div>
 
         <div className="form-group">
-          <label className="form-label" style={{ fontWeight: 600 }}>
-            PC Sales
+          <label className="form-label" style={{ fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
+            <span>PC Account List</span>
           </label>
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontWeight: 600, fontSize: 13 }}>₹</span>
-            <input
-              id="da-pc-sales"
-              type="number"
-              className="form-input"
-              placeholder="0.00"
-              value={form.pcSales}
-              onChange={(e) => setForm((p) => ({ ...p, pcSales: e.target.value }))}
-              disabled={disabled}
-              min="0"
-              step="0.01"
-              style={{ paddingLeft: 26, fontWeight: 600 }}
-            />
+          <div style={{ display: 'flex', flexDirection: 'column', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', maxHeight: '200px', overflowY: 'auto' }}>
+            {pcList.map((val, idx) => (
+              <div key={idx} style={{ display: 'flex', borderBottom: idx !== pcList.length - 1 ? '1px solid #e2e8f0' : 'none', padding: '4px 0' }}>
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={val === 0 ? '' : val}
+                  onChange={(e) => {
+                    const newList = [...pcList];
+                    newList[idx] = e.target.value;
+                    if (idx === pcList.length - 1 && e.target.value !== '') {
+                      newList.push('');
+                    }
+                    setPcList(newList);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace' && val === '' && idx > 0 && idx === pcList.length - 1) {
+                      e.preventDefault();
+                      const newList = [...pcList];
+                      newList.pop();
+                      setPcList(newList);
+                      // Focus previous input
+                      setTimeout(() => {
+                        const inputs = document.querySelectorAll('.pc-amount-input');
+                        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+                      }, 10);
+                    }
+                  }}
+                  disabled={disabled}
+                  className="pc-amount-input"
+                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'right', fontWeight: val ? 700 : 500, outline: 'none', fontSize: 14, color: val ? '#b45309' : '#94a3b8' }}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '2px solid #e2e8f0' }}>
+              <span style={{ fontWeight: 700, color: '#475569', fontSize: 14 }}>Total:</span>
+              <span style={{ fontWeight: 800, color: '#d97706', fontSize: 15 }}>{formatCurrency(pcTotal)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-group" style={{ gridColumn: '1 / -1', borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
+          <label className="form-label" style={{ fontWeight: 600, display: 'flex', justifyContent: 'space-between' }}>
+            <span>Carry Forward (CF) Breakdown</span>
+            <span style={{ color: '#d97706' }}>Total CF: {formatCurrency(cfTotal)}</span>
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 200px), 1fr))', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            {cfList.map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flex: 1, gap: '4px' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 11 }}>₹</span>
+                    <input
+                      type="number"
+                      className="form-input"
+                      placeholder="Type"
+                      value={item.multiplier === 0 ? '' : item.multiplier}
+                      onChange={(e) => {
+                        const newList = [...cfList];
+                        newList[idx].multiplier = e.target.value;
+                        setCfList(newList);
+                      }}
+                      disabled={disabled}
+                      style={{ paddingLeft: 18, height: '32px', fontSize: 12, fontWeight: 700 }}
+                    />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#94a3b8', display: 'flex', alignItems: 'center' }}>x</span>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="Count"
+                    value={item.count === 0 ? '' : item.count}
+                    onChange={(e) => {
+                      const newList = [...cfList];
+                      newList[idx].count = e.target.value;
+                      setCfList(newList);
+                    }}
+                    disabled={disabled}
+                    style={{ flex: 1, height: '32px', fontSize: 12, fontWeight: 700 }}
+                  />
+                </div>
+                {!disabled && (
+                  <button type="button" onClick={() => setCfList(cfList.filter((_, i) => i !== idx))} style={{ background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '6px', padding: '0 10px', fontWeight: 'bold', cursor: 'pointer', height: '32px', flexShrink: 0 }}>
+                    &times;
+                  </button>
+                )}
+              </div>
+            ))}
+            {!disabled && (
+              <button 
+                type="button" 
+                onClick={() => setCfList([...cfList, { multiplier: '', count: '' }])}
+                style={{ background: '#fffbeb', border: '1px dashed #d97706', color: '#d97706', padding: '6px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'center', height: '32px', alignItems: 'center' }}
+              >
+                + Add CF Rule
+              </button>
+            )}
           </div>
         </div>
 
@@ -133,7 +237,7 @@ function SalesForm({ account, onUpdate, disabled }) {
           { label: 'Cash Sales', value: form.cashSales || 0, color: '#10b981', live: false },
           { label: 'Credit Sales (DB)', value: account?.creditSales || 0, color: '#f59e0b', live: true },
           { label: 'GPAY / UPI (DB)', value: account?.gpaySales || 0, color: '#8b5cf6', live: true },
-          { label: 'Petty Cash Sales', value: form.pcSales || 0, color: '#64748b', live: false },
+          { label: 'Procedures Revenue (PC)', value: pcTotal || 0, color: '#64748b', live: false },
         ].map(row => (
           <div key={row.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: '#475569' }}>
@@ -153,7 +257,7 @@ function SalesForm({ account, onUpdate, disabled }) {
       {!disabled && (
         <button
           className="btn btn-primary"
-          style={{ marginTop: 14, width: '100%' }}
+          style={{ marginTop: 'auto', width: '100%', padding: '14px', fontSize: 15, fontWeight: 700 }}
           onClick={handleSave}
           disabled={saving}
           id="da-save-sales"
@@ -174,44 +278,50 @@ function ReconciliationPanel({ account }) {
   const physicalTotal = account.physicalCashTotal || 0;
   const difference = calculateDifference(expectedCash, physicalTotal);
   const status = getReconciliationStatus(difference, settings.balance_tolerance || 1);
-
   const statusConfig = {
-    BALANCED: {
-      bg: '#f0fdf4',
-      border: '#bbf7d0',
-      badgeBg: '#dcfce7',
-      badgeColor: '#16a34a',
-      title: 'Balanced',
-      icon: CheckCircle,
-      desc: 'Physical drawer cash perfectly matches calculations.',
-    },
-    SHORT: {
-      bg: '#fef2f2',
-      border: '#fecaca',
-      badgeBg: '#fee2e2',
-      badgeColor: '#dc2626',
-      title: 'Cash is Short',
-      icon: AlertTriangle,
-      desc: `Drawer is SHORT by ${formatCurrency(Math.abs(difference))}. Recount or check vouchers.`,
-    },
-    EXCESS: {
-      bg: '#fffbeb',
-      border: '#fde68a',
-      badgeBg: '#fef3c7',
-      badgeColor: '#d97706',
-      title: 'Cash is in Excess',
-      icon: AlertCircle,
-      desc: `Drawer has an EXCESS of ${formatCurrency(difference)}.`,
-    },
-    PENDING: {
-      bg: '#f8fafc',
-      border: '#e2e8f0',
-      badgeBg: '#f1f5f9',
-      badgeColor: '#64748b',
-      title: 'Pending Count',
-      icon: Clock,
-      desc: 'Please count physical cash denominations in Cash Counter.',
-    },
+    BALANCED: { bg: '#f0fdf4', border: '#bbf7d0', badgeBg: '#dcfce7', badgeColor: '#16a34a', title: 'BALANCED', icon: CheckCircle },
+    SHORT: { bg: '#fef2f2', border: '#fecaca', badgeBg: '#fee2e2', badgeColor: '#dc2626', title: 'SHORT', icon: AlertTriangle },
+    EXCESS: { bg: '#fffbeb', border: '#fde68a', badgeBg: '#fef3c7', badgeColor: '#d97706', title: 'EXCESS', icon: AlertCircle },
+    PENDING: { bg: '#f8fafc', border: '#e2e8f0', badgeBg: '#f1f5f9', badgeColor: '#64748b', title: 'PENDING', icon: Clock },
+  };
+
+  const totalSales = (account.cashSales || 0) + (account.creditSales || 0) + (account.gpaySales || 0) + (account.pcSales || 0);
+
+  // Balance (Without PC/CF)
+  const expectedBase = (account.openingBalance || 0) + (account.cashSales || 0) - (account.totalExpenses || 0);
+  const actualBase = account.physicalCashTotal || 0;
+  const diffBase = actualBase - expectedBase;
+  const statBase = getReconciliationStatus(diffBase, settings.balance_tolerance || 1);
+
+  // Balance (With PC)
+  const pcPhysicalCash = account.pcDenominations?.reduce((sum, d) => sum + (d.total || 0), 0) || 0;
+  const expectedPC = expectedBase + (account.pcSales || 0);
+  const actualPC = actualBase + pcPhysicalCash;
+  const diffPC = actualPC - expectedPC;
+  const statPC = getReconciliationStatus(diffPC, settings.balance_tolerance || 1);
+
+  // Final Balance (+CF)
+  // CF applies equally to both, keeping the difference the same, but serves as the final sign-off stage.
+  const diffFinal = diffPC; 
+  const statFinal = statPC;
+
+  const renderStage = (label, diff, stat) => {
+    const cfg = statusConfig[stat] || statusConfig.PENDING;
+    const isBalanced = stat === 'BALANCED';
+    const color = diff < 0 ? '#dc2626' : diff > 0 ? '#d97706' : '#16a34a';
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: 10 }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-sub)', marginBottom: 4 }}>{label}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color }}>
+             {diff > 0 ? `+${formatCurrency(diff)}` : formatCurrency(diff)}
+          </div>
+        </div>
+        <div style={{ background: cfg.badgeBg, color: cfg.badgeColor, padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 4 }}>
+          {stat}
+        </div>
+      </div>
+    );
   };
 
   const cfg = statusConfig[status] || statusConfig.PENDING;
@@ -235,61 +345,15 @@ function ReconciliationPanel({ account }) {
         </button>
       </div>
 
-      {/* Modern Status Banner */}
-      <div
-        style={{
-          background: cfg.bg,
-          border: `1px solid ${cfg.border}`,
-          borderRadius: 'var(--radius-md)',
-          padding: '14px 16px',
-          marginBottom: 14,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 'var(--radius-sm)',
-              background: cfg.badgeBg,
-              color: cfg.badgeColor,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Icon size={20} />
-          </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
-              {cfg.title}
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 1 }}>
-              {cfg.desc}
-            </div>
-          </div>
+      <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Total Sales</span>
+          <span style={{ fontSize: 18, fontWeight: 900, color: '#4338ca' }}>{formatCurrency(totalSales)}</span>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-            Variance
-          </div>
-          <div
-            style={{
-              fontSize: 18,
-              fontWeight: 800,
-              color: difference < 0 ? '#dc2626' : difference > 0 ? '#d97706' : '#16a34a',
-            }}
-          >
-            {difference > 0 ? `+${formatCurrency(difference)}` : formatCurrency(difference)}
-          </div>
-        </div>
+        {renderStage('Balance (Without PC/CF)', diffBase, statBase)}
+        {renderStage('Balance (With PC)', diffPC, statPC)}
+        {renderStage('Final Balance (+CF)', diffFinal, statFinal)}
       </div>
 
       {/* Cash Flow Ledger */}

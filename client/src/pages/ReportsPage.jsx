@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { reportsAPI, dailyAccountsAPI, expensesAPI, creditAPI } from '../api/services';
 import { useSettings } from '../hooks/useSettings';
-import { formatDate, monthStart, todayString } from '../utils/accountingEngine';
+import { formatDate, formatDateString, monthStart, todayString } from '../utils/accountingEngine';
 import toast from 'react-hot-toast';
 import { Download, BarChart3, FileText, CreditCard, CalendarDays, PieChart, Pencil, Trash2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
@@ -183,7 +183,7 @@ export default function ReportsPage() {
             <button 
               onClick={() => {
                 const d = new Date(); d.setDate(d.getDate() - 7);
-                setStartDate(d.toISOString().split('T')[0]); setEndDate(todayString());
+                setStartDate(formatDateString(d)); setEndDate(todayString());
               }}
               style={{ background: '#f1f5f9', border: 'none', padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, color: 'var(--text-sub)', cursor: 'pointer' }}
             >

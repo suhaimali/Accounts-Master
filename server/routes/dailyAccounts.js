@@ -14,9 +14,9 @@ const {
 const getOrCreateDailyAccount = async (dateString, userId, branch = 'Main') => {
   let account = await DailyAccount.findOne({ dateString, branch });
   if (!account) {
-    // Get previous day carry forward as opening balance
-    const prevDate = new Date(dateString);
-    prevDate.setDate(prevDate.getDate() - 1);
+    // Get previous day carry forward as opening balance (UTC-safe date math)
+    const prevDate = new Date(`${dateString}T00:00:00Z`);
+    prevDate.setUTCDate(prevDate.getUTCDate() - 1);
     const prevDateStr = prevDate.toISOString().split('T')[0];
     const prevAccount = await DailyAccount.findOne({ dateString: prevDateStr, branch });
     const openingBalance = prevAccount ? prevAccount.carryForward : 0;
@@ -107,7 +107,9 @@ router.get('/', async (req, res) => {
 // @GET /api/daily-accounts/today
 router.get('/today', async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    // Prefer the client's local date (server may run in UTC)
+    const isValidDate = typeof req.query.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(req.query.date);
+    const today = isValidDate ? req.query.date : new Date().toISOString().split('T')[0];
     const branch = req.query.branch || 'Main';
     const account = await getOrCreateDailyAccount(today, req.user._id, branch);
     const populated = await DailyAccount.findById(account._id);
@@ -134,12 +136,28 @@ router.put('/:id', async (req, res) => {
     if (account.isClosed && req.user.role === 'cashier') return res.status(403).json({ success: false, message: 'Day is closed' });
 
     const before = account.toObject();
-    const { cashSales, pcSales, openingBalance, notes, carryForward } = req.body;
+    const { cashSales, pcSales, pcList, openingBalance, notes, carryForward, cfBreakdown } = req.body;
     if (cashSales !== undefined) account.cashSales = cashSales;
-    if (pcSales !== undefined) account.pcSales = pcSales;
+    
+    if (pcList !== undefined) {
+      account.pcList = pcList;
+      account.pcSales = pcList.reduce((a, b) => a + (Number(b) || 0), 0);
+    } else if (pcSales !== undefined) {
+      account.pcSales = pcSales;
+    }
+
     if (openingBalance !== undefined && (req.user.role === 'admin' || req.user.role === 'manager')) account.openingBalance = openingBalance;
     if (notes !== undefined) account.notes = notes;
-    if (carryForward !== undefined) account.carryForward = carryForward;
+    if (req.body.cfList !== undefined) {
+      account.cfList = req.body.cfList;
+      account.carryForward = req.body.cfList.reduce((acc, curr) => acc + (Number(curr.multiplier || 0) * Number(curr.count || 0)), 0);
+    } else if (cfBreakdown !== undefined) {
+      account.cfBreakdown = cfBreakdown;
+      account.carryForward = (Number(cfBreakdown.cf180) * 180) + (Number(cfBreakdown.cf20) * 20) + Number(cfBreakdown.cfOthers || 0);
+    } else if (carryForward !== undefined) {
+      account.carryForward = carryForward;
+    }
+    
     await account.save();
 
     const updated = await recalculateAccount(account._id);
@@ -155,9 +173,18 @@ router.put('/:id/denominations', async (req, res) => {
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
     if (account.isClosed && req.user.role === 'cashier') return res.status(403).json({ success: false, message: 'Day is closed' });
 
-    const { denominations } = req.body;
-    account.denominations = calculateDenominations(denominations);
-    account.physicalCashTotal = calculatePhysicalCash(account.denominations);
+    const { denominations, pcList } = req.body;
+    
+    if (denominations) {
+      account.denominations = calculateDenominations(denominations);
+      account.physicalCashTotal = calculatePhysicalCash(account.denominations);
+    }
+    
+    if (pcList !== undefined) {
+      account.pcList = pcList;
+      account.pcSales = pcList.reduce((sum, item) => sum + (Number(item) || 0), 0);
+    }
+    
     await account.save();
 
     const updated = await recalculateAccount(account._id);
@@ -186,9 +213,11 @@ router.post('/:id/close', async (req, res) => {
 // @POST /api/daily-accounts/:id/reopen
 router.post('/:id/reopen', async (req, res) => {
   try {
-    const account = await DailyAccount.findByIdAndUpdate(req.params.id, { isClosed: false, closedAt: null }, { new: true });
+    const account = await DailyAccount.findByIdAndUpdate(req.params.id, { isClosed: false, closedAt: null, closedBy: null }, { new: true });
+    if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
     await createAuditLog({ action: 'REOPEN_DAY', module: 'DailyAccount', documentId: account._id, userId: req.user._id, userName: req.user.name, userRole: req.user.role, req });
-    res.json({ success: true, data: account });
+    const updated = await recalculateAccount(account._id);
+    res.json({ success: true, data: updated });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 

@@ -19,7 +19,9 @@ router.put('/:accountId', async (req, res) => {
   try {
     const account = await DailyAccount.findById(req.params.accountId);
     if (!account) return res.status(404).json({ success: false, message: 'Account not found' });
+    if (account.isClosed && req.user.role === 'cashier') return res.status(403).json({ success: false, message: 'Day is closed' });
     const { denominations } = req.body;
+    if (!Array.isArray(denominations)) return res.status(400).json({ success: false, message: 'denominations must be an array' });
     const calculated = calculateDenominations(denominations);
     const physicalCashTotal = calculatePhysicalCash(calculated);
     const { difference, status } = calculateReconciliation(account.expectedCash, physicalCashTotal);
